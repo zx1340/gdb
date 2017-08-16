@@ -1,6 +1,2 @@
-gdb useful script
-##########
------------------------
-##find input break function
-####$gcc core.c -o core
-####$python scan.py
+
+Using: python scan.py <input_source_file> \<excutable\> \<breakpoint\> \[extention(.py ...)\]
