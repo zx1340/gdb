@@ -1,2 +1,4 @@
 
-Using: python scan.py <input_source_file> \<excutable\> \<breakpoint\> \[extention(.py ...)\]
+Using: python scan.py <input_source_folder> \<excutable\> \<breakpoint\> \[extention(.py ...)\]
+Example:
+  python scan.py testcase python.exe py_mem_alloc py
