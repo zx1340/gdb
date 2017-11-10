@@ -29,30 +29,53 @@ def write_gdb(bp,arg):
     f.close()
 
 
+def check_gdb(breakpoint,cmd):
+    write_gdb(breakpoint,"test")
+    p = subprocess.Popen(cmd, stdout=subprocess.PIPE,stderr=subprocess.PIPE,stdin=subprocess.PIPE)
+    out, err = p.communicate()
+    print out
+    if "Error in sourced command file:" in err:
+        print "[-]Error:" + str(err)
+        return False
+    return True
+
+
+
 def main():
-    if len(sys.argv) < 4:
-        print "Using: python scan.py <input_source_file> <excutable> <breakpoint> [extention(.py ...)]"
-        sys.exit()
-    input_souce = sys.argv[1]
-    excutable = sys.argv[2]
-    breakpoint = sys.argv[3]
-    extention = sys.argv[4] if len(sys.argv) == 5 else None
-    
+ 
+
+    parser = argparse.ArgumentParser(description='Gdb scanner.')
+
+    parser.add_argument('-s', action="store", dest="source",required=True,help='input source folder')
+    parser.add_argument('-i', action="store", dest="binary",required=True,help='executable')
+    parser.add_argument('-b', action="store", dest="bp",required=True,help="breakpoint")
+
+    args = parser.parse_args()
+    input_souce = args.source
+    excutable = args.binary
+    breakpoint = args.bp
+    extention = None
+
+
+
     all_input = get_all_input(input_souce,extention)
+
+    print "[+]Total:"+ str(len(all_input))
+
 
     cmd = ['gdb', '--batch','--command=cmd.gdb','--args',excutable]
   
-    
-    for i in all_input:
-    
-        write_gdb(breakpoint,i)
-        print '[+] Scanning file',i
-        p = subprocess.Popen(cmd, stdout=subprocess.PIPE,stderr=subprocess.PIPE,stdin=subprocess.PIPE)
-        out, err = p.communicate()
-        #print out,err
-        if 'Breakpoint 1,' in out:
-            print "--------------------------- FOUNDED -----------------------",i
-            break
+    if check_gdb(breakpoint,cmd):
+
+        for i in all_input:
+        
+            write_gdb(breakpoint,i)
+            print '[+] Scanning file',i
+            p = subprocess.Popen(cmd, stdout=subprocess.PIPE,stderr=subprocess.PIPE,stdin=subprocess.PIPE)
+            out, err = p.communicate()
+            #print out,err
+            if 'Breakpoint 1,' in out:
+                print "--------------------------- FOUNDED -----------------------",i
 
 
 if __name__ == "__main__":
